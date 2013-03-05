@@ -4,17 +4,23 @@ The various HTTP responses for use in returning proper HTTP codes.
 from django.http import HttpResponse
 
 
-class HttpCreated(HttpResponse):
+class HttpResponseWithLocationHeader(HttpResponse):
+    def __init__(self, *args, **kwargs):
+        try:
+            location = kwargs.pop('location', '')
+        except KeyError:
+            location = None
+
+        super(HttpResponseWithLocationHeader, self).__init__(*args, **kwargs)
+        if location is not None:
+            self['Location'] = location
+
+
+class HttpCreated(HttpResponseWithLocationHeader):
     status_code = 201
 
-    def __init__(self, *args, **kwargs):
-        location = kwargs.pop('location', '')
 
-        super(HttpCreated, self).__init__(*args, **kwargs)
-        self['Location'] = location
-
-
-class HttpAccepted(HttpResponse):
+class HttpAccepted(HttpResponseWithLocationHeader):
     status_code = 202
 
 
